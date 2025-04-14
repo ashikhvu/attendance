@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block body_block %}
+<form action="#" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input name="mob_no" type="text" placeholder="Enter mob no" pattern="\d{10}" required><br>
+    <input name="qr_data" type="text" placeholder="Enter the text to generate qrcode" required>
+    <br>
+    <button type="submit">Generate</button>
+</form>
+
+<div>
+    {% if qr_image_url %}
+    <img src="{{ qr_image_url }}" alt="">
+    <a href="{{ qr_image_url }}" download>download</a>
+    {% endif %}
+</div>
+{% endblock %}

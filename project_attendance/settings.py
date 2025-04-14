@@ -25,8 +25,9 @@ SECRET_KEY = 'django-insecure-ldj!u28-w4ovz5k2gt#y&y)un+-8gsba_9%+vx707^%r6nh1a7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+AUTH_USER_MODEL = "app_scanner.CustomUser"
 
 # Application definition
 
@@ -39,7 +40,28 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app_attendance',
     'app_scanner',
+    'django_celery_beat',
+    'django_celery_results',
+    "crispy_forms",
+    "crispy_bootstrap5",
 ]
+
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+#for storing result
+CELERY_RESULT_BACKEND = 'django-db'
+#SETTINGS FOR CELERY
+
+CELERY_BROKER_URL='redis://localhost:6379'
+CELERY_ACCEPT_CONTENT=['application/json']
+CELERY_RESULT_SERIALIZER='json'
+CELERY_TASK_SERIALIZER='json'
+
+#celery beat settings
+CELERY_BEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -116,9 +138,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+import os
+
 STATIC_URL = 'static/'
 
-import os
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 if DEBUG:
     STATICFILES_DIRS = [os.path.join(BASE_DIR,'static')]
@@ -129,3 +154,4 @@ else:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

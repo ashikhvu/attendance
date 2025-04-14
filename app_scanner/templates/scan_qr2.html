@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block body_block %}
+
+<h1>QR Code Scanner</h1>
+<div id="reader" style="width: 300px;"></div>
+<button id="switch-camera" style="margin-top:10px;">Switch Camera</button>
+<p>Scanned Result: <span id="result"></span></p>
+
+<script>
+    $(document).ready(function () {
+        let currentCameraId = null;
+        let cameraList = [];
+        let currentCameraIndex = 0;
+
+        const html5QrCode = new Html5Qrcode("reader");
+
+        // Scan success handler
+        function onScanSuccess(decodedText, decodedResult) {
+            $('#result').text(decodedText);
+            console.log(`Scanned code: ${decodedText}`, decodedResult);
+
+            // Optional: stop scanning after first scan
+            html5QrCode.stop().then(() => {
+                console.log("Scanner stopped.");
+            }).catch(err => {
+                console.error("Failed to stop scanner: ", err);
+            });
+        }
+
+        // Start camera by index
+        function startCameraByIndex(index) {
+            currentCameraId = cameraList[index].id;
+            html5QrCode.start(
+                currentCameraId,
+                {
+                    fps: 10,
+                    qrbox: 250
+                },
+                onScanSuccess
+            ).catch(err => {
+                console.error("Unable to start scanning: ", err);
+            });
+        }
+
+        // Get available cameras and start with back one if mobile
+        Html5Qrcode.getCameras().then(devices => {
+            if (devices && devices.length) {
+                cameraList = devices;
+
+                // Try to pick the back camera by label
+                const backCamIndex = devices.findIndex(cam => cam.label.toLowerCase().includes("back"));
+                currentCameraIndex = backCamIndex !== -1 ? backCamIndex : 0;
+
+                startCameraByIndex(currentCameraIndex);
+            }
+        }).catch(err => {
+            console.error("Camera access error: ", err);
+        });
+
+        // Switch camera on button click
+        $('#switch-camera').on('click', function () {
+            html5QrCode.stop().then(() => {
+                currentCameraIndex = (currentCameraIndex + 1) % cameraList.length;
+                startCameraByIndex(currentCameraIndex);
+            }).catch(err => {
+                console.error("Error switching camera: ", err);
+            });
+        });
+    });
+</script>
+
+{% endblock %}

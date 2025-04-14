@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block body_block %}
+
+{% if qr_code_instance.qr_code %}
+<img id="my_image" src="{{ qr_code_instance.qr_code.url }}" alt="no img">
+{% else %}
+<p>no img</p>
+{% endif %}
+
+<script>
+    $(document).ready(function(){
+        function fetch_qr(){
+            $.ajax({
+                url: "{% url 'fetch_qr' %}",
+                type:"GET",
+                data:{
+                    csrfmiddlewaretoken:"{{ csrf_token }}"
+                },
+                success:function (res){
+                    $('#my_image').attr('src',res.img)
+                },
+                error:function(error){
+
+                }
+            })
+        }
+        setInterval(fetch_qr,5000);
+    })
+</script>
+
+{% endblock %}
