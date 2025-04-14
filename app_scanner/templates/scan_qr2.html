@@ -1,12 +1,20 @@
 {% extends "base.html" %}
 {% block body_block %}
 
-<h1>QR Code Scanner</h1>
-<div id="reader" style="width: 300px;"></div>
-<button id="switch-camera" style="margin-top:10px;">Switch Camera</button>
-<p>Scanned Result: <span id="result"></span></p>
+<div class="container text-center">
+    <h4 class="text-uppercase mt-3 mb-3">Scannhing the qr code</h4>
+    <div style="display: flex;justify-content: center;">
+        <div id="reader" style="width: 300px;"></div>
+    </div>
+    <button id="switch-camera" class="btn btn-dark m-3">Switch Camera</button><br>
+    <a id="retry" class="btn btn-dark m-3 mt-0" hidden href="">Retry</a>
+    <p>Scanned Result: <span id="result"></span></p>
+</div>
 
 <script>
+    $(document).ready(function(){
+        $('#scan').addClass('active fw-bold');
+    })
     $(document).ready(function () {
         let currentCameraId = null;
         let cameraList = [];
@@ -16,8 +24,26 @@
 
         // Scan success handler
         function onScanSuccess(decodedText, decodedResult) {
-            $('#result').text(decodedText);
-            console.log(`Scanned code: ${decodedText}`, decodedResult);
+            // $('#result').text(decodedText);
+            // console.log(`Scanned code: ${decodedText}`, decodedResult);
+
+            $.ajax({
+                url: "{% url 'check_qr_valid' %}",
+                type:"POST",
+                data:{
+                    'qr_code':decodedText,
+                    csrfmiddlewaretoken:"{{ csrf_token }}"
+                },
+                success:function(res){
+                    alert(res.success)
+                },
+                error:function(error){
+                    alert(error.errors)
+                }
+            })
+
+            $('#switch-camera').attr('hidden',true)
+            $('#retry').attr('hidden',false)
 
             // Optional: stop scanning after first scan
             html5QrCode.stop().then(() => {

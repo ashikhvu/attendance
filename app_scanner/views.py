@@ -1,5 +1,5 @@
 # views.py
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 import qrcode
 from django.core.files.storage import FileSystemStorage
 from io import BytesIO
@@ -15,13 +15,15 @@ from django.http import HttpResponse
 from .tasks import generate_qr_code_automatic
 from django.http import JsonResponse
 from .forms import *
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 def autogenerate_qr(request):
-    img = AutoGenQr.objects.all().first()
+    img = AutoGenQr.objects.all().last()
     return render(request,'autogenerate_qr.html',{'qr_code_instance':img})
 
 def fetch_qr(request):
-    qr = AutoGenQr.objects.all().first()
+    qr = AutoGenQr.objects.all().last()
     if qr:
         img_url = qr.qr_code.url
     return JsonResponse({"img":img_url})
@@ -29,6 +31,17 @@ def fetch_qr(request):
 def register_user(request):
     form=None
     form = CustomUserForm()
+    print('enter')
+    if request.method=="POST":
+        print('post')
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            print('valid')
+            form.save()
+            return redirect('login')
+        else:
+            print(f'not valid {form.errors}')
+
     return render(request,"register.html",{'form':form})
 
 def generate_qr(request):
@@ -71,7 +84,7 @@ def scan_qr(request):
             if decoded_objects: 
                 qr_content = decoded_objects[0].data.decode('utf-8').strip()
                 qr_data , qr_mob_no = qr_content.split('|')
-                qr_entry=QRCODE.objects.filter(data = qr_data,mobile=qr_mob_no).first()
+                qr_entry=QRCODE.objects.filter(data = qr_data,mobile=qr_mob_no).last()
                 if qr_entry and mobile==qr_mob_no :
                     result = "Scan Success : valid qrcode for the provided mobile number"
                     qr_entry.delete()
@@ -91,6 +104,7 @@ def scan_qr(request):
                 image_path.unlink()
     return render(request,'scan_qr.html',{'result':result})
 
+@login_required
 def scan_qr2(request):
     return render(request, 'scan_qr2.html')
 
@@ -134,3 +148,76 @@ from .tasks import fun
 def testView(request):
     fun.delay()
     return HttpResponse("Done")
+
+import hashlib
+
+def file_hash(file):
+    """Returns an MD5 hash of the file content"""
+    hasher = hashlib.md5()
+    for chunk in file.chunks():
+        hasher.update(chunk)
+    return hasher.hexdigest()
+
+@login_required
+def check_qr_valid(request):
+    qr_code = request.POST.get('qr_code')
+    # qr_code contaion decoded text of the qr code image
+    print(qr_code)
+    obj = AutoGenQr.objects.all().last()
+    # if obj.qr_code == qr_code:
+    #     return JsonResponse({"success":"success"})
+    # else:
+    #     return JsonResponse({"error":"error"})
+    
+
+    try:
+        # Load the QR code image from the file system
+        image_path = obj.qr_code.path  # assumes qr_code is an ImageField
+        img = Image.open(image_path)
+
+        # Decode the QR code image
+        decoded_objs = decode(img)
+        if not decoded_objs:
+            return JsonResponse({"errors": "Failed to decode QR code image"}, status=400)
+
+        decoded_text = decoded_objs[0].data.decode('utf-8')  # get first QR result
+        print(f"Decoded from image: {decoded_text}")
+
+        if decoded_text == qr_code:
+            print('matched')
+            # LoginRegister.objects.create(user=request.user)
+
+            now = timezone.now()
+            today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+            already_marked = LoginRegister.objects.filter(
+                user=request.user,
+                created_at__range=(today_start, today_end)
+            ).exists()
+            if not already_marked:
+                LoginRegister.objects.create(user=request.user)
+                return JsonResponse({"success": "Attendance Marked Successfully!"})
+            else:
+                return JsonResponse({"success": "Already marked attendance today!"})
+        else:
+            return JsonResponse({"errors": "QR code does not match"}, status=400)
+
+    except Exception as e:
+        # return JsonResponse({"errors": str(e)}, status=500)
+        return JsonResponse({"errors": "QR code does not match"}, status=500)
+    
+@login_required
+def log_register(request):
+    reg = LoginRegister.objects.filter()
+    for i in reg:
+        print(f'---------------{i.created_at}-----------')
+
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+    print(f'--------------{now}---------------')
+    return render(request,'log_register.html',{'reg':reg})
+
+@login_required
+def login_success(request):
+    return render(request,"login_success.html",{})

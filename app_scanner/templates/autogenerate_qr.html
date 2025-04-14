@@ -2,12 +2,19 @@
 {% block body_block %}
 
 {% if qr_code_instance.qr_code %}
-<img id="my_image" src="{{ qr_code_instance.qr_code.url }}" alt="no img">
+<div class="container text-center">
+    <h6 class="pt-4 pb-0 mb-0 text-uppercase">Scan the QR CODE</h6>
+    <img id="my_image" src="{{ qr_code_instance.qr_code.url }}" alt="no img">
+    <h6 class="pt-0 pb-0 mb-0  text-uppercase"> Mark Attendance</h6>
 {% else %}
-<p>no img</p>
+    <p>qr code is unavailalble right now</p>
+</div>
 {% endif %}
 
 <script>
+    $(document).ready(function(){
+        $('#Attendance').addClass('active fw-bold');
+    })
     $(document).ready(function(){
         function fetch_qr(){
             $.ajax({

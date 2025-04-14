@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block body_block %}
+
+<div class="container mt-5">
+    <form action="" method="POST" style="background-color: rgba(0, 0, 0, 0.111);" class="p-3 rounded">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <a href="{% url 'register_user' %}" class="my-5">New User Registration</a><br>
+        <button class="btn btn-dark my-2" type="submit">LOGIN</button>
+    </form>
+</div>
+{% endblock %}

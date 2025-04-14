@@ -2,12 +2,20 @@
 {% load crispy_forms_tags  %}
 {% block body_block %}
 <div class="container">
-    <form action="#" method="post" enctype="multipart/form-data">
+    <h4 class="text-uppercase text-center mt-3 mb-3">New User Registration</h4>
+    <form style="background-color: rgba(0, 0, 0, 0.113);" class="text-dark p-3 rounded" action="{% url 'register_user' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|crispy }}
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <div class="text-center">
+            <button type="submit" class="btn btn-dark">Register</button>
+        </div>
     </form>
 </div>
 
 <br><br><br>
+<script>
+     $(document).ready(function(){
+        $('#register').addClass('active fw-bold');
+    })
+</script>
 {% endblock %}

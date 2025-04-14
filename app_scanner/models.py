@@ -11,9 +11,12 @@ class CustomUser(AbstractUser):
 
 class AutoGenQr(models.Model):
     name = models.CharField(max_length=100,null=True,blank=True)
-    qr_code = models.ImageField(upload_to="auto_gen_qrcode/")
+    qr_code = models.ImageField(upload_to="auto_gen_qrcode/",null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+class LoginRegister(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,blank=True,null=True)
+    created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
 
 # ---------------------------------------------------------------------
 class QRCODE(models.Model):
@@ -30,5 +33,6 @@ class QRCode2(models.Model):  # Changed from QRCode to QRCode2
 
     def __str__(self):
         return self.name
+    
 
 

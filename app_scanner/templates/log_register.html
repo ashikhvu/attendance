@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags  %}
+{% block body_block %}
+<div class="container">
+    <h4 class="text-uppercase text-center mt-3 mb-3">ATTENDANCE ENTRIES</h4>
+    <div class="bg-dark p-3 rounded pb-1">
+        <div style="overflow-x: auto;">
+
+            <table class="table table-dark table-striped-columns">
+                <thead>
+                    <th>NAME</th>
+                    <th>DOB</th>
+                    <th>PHONE</th>
+                    <th>LOGIN</th>
+                </thead>
+                <tbody>
+                    {% for i in reg %}
+                    <tr>
+                        <td>
+                            <p>{{ i.user.username|capfirst }}</p>
+                        </td>
+                        <td>
+                            <p>{{ i.user.dob|date:'d/m/Y' }}</p>
+                        </td>
+                        <td>
+                            <p>{{ i.user.phone }}</p>
+                        </td>
+                        <td>
+                            <p>{{ i.created_at|date:'d/m/Y' }}</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</div>
+
+<br><br><br>
+<script>
+    $(document).ready(function(){
+        $('#entries').addClass('active fw-bold');
+    })
+</script>
+{% endblock %}

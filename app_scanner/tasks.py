@@ -21,7 +21,7 @@ def generate_qr_code_automatic(self):
         border=4,
     )
     print(random.randint(0,9999999999999999999))
-    data = f"QR code generated on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    data = f"QR code generated on {random.randint(0,9999999999999999999)}{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     qr.add_data(data)
     qr.make(fit=True)
     img = qr.make_image(fill='black', back_color='white')
