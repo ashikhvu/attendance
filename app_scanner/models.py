@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser,User
 
 
 # Create your models here.
-
 class CustomUser(AbstractUser):
     dob = models.DateField(null=True,blank=True)
     address = models.TextField(null=True,blank=True)
@@ -17,6 +16,8 @@ class AutoGenQr(models.Model):
 class LoginRegister(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,blank=True,null=True)
     created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
+    location = models.CharField(max_length=255,blank=True,null=True)
+    person_image = models.ImageField(upload_to='person_image/',blank=True,null=True)
 
 # ---------------------------------------------------------------------
 class QRCODE(models.Model):

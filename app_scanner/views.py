@@ -159,17 +159,11 @@ def file_hash(file):
     return hasher.hexdigest()
 
 @login_required
-def check_qr_valid(request):
+def check_attendance_marked_or_not(request):
     qr_code = request.POST.get('qr_code')
-    # qr_code contaion decoded text of the qr code image
     print(qr_code)
     obj = AutoGenQr.objects.all().last()
-    # if obj.qr_code == qr_code:
-    #     return JsonResponse({"success":"success"})
-    # else:
-    #     return JsonResponse({"error":"error"})
     
-
     try:
         # Load the QR code image from the file system
         image_path = obj.qr_code.path  # assumes qr_code is an ImageField
@@ -185,8 +179,6 @@ def check_qr_valid(request):
 
         if decoded_text == qr_code:
             print('matched')
-            # LoginRegister.objects.create(user=request.user)
-
             now = timezone.now()
             today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
             today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
@@ -195,8 +187,7 @@ def check_qr_valid(request):
                 created_at__range=(today_start, today_end)
             ).exists()
             if not already_marked:
-                LoginRegister.objects.create(user=request.user)
-                return JsonResponse({"success": "Attendance Marked Successfully!"})
+                return JsonResponse({"success": "Take a selfie and confirm your attendance!"})
             else:
                 return JsonResponse({"success": "Already marked attendance today!"})
         else:
@@ -205,6 +196,27 @@ def check_qr_valid(request):
     except Exception as e:
         # return JsonResponse({"errors": str(e)}, status=500)
         return JsonResponse({"errors": "QR code does not match"}, status=500)
+    
+
+@login_required
+def confirm_attendance(request):
+    # try:
+    if request.method=="POST":
+        if request.FILES:
+            person_image = request.FILES['person_image']
+        else:
+            person_image = None
+        location = request.POST.get('location')
+        log_reg = LoginRegister(
+            user=request.user,
+            person_image = person_image,
+            location = location
+        )
+        log_reg.save()
+    return JsonResponse({'success':'Attendance Marked Successfully !'})
+    # except Exception as e:
+    #     return JsonResponse({"errors":str(e)},status=400)
+    
     
 @login_required
 def log_register(request):

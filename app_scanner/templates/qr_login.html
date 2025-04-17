@@ -5,7 +5,7 @@
 {% block body_block %}
 
 <div class="container mt-5">
-    <form action="" method="POST" style="background-color: rgba(0, 0, 0, 0.111);" class="p-3 rounded">
+    <form action="" method="POST" style="background-color: rgba(0, 0, 0, 0.111);" class="p-3 rounded bs">
         {% csrf_token %}
         {{ form|crispy }}
         <a href="{% url 'register_user' %}" class="my-5">New User Registration</a><br>

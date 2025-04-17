@@ -2,8 +2,8 @@
 {% load crispy_forms_tags  %}
 {% block body_block %}
 <div class="container">
-    <h4 class="text-uppercase text-center mt-3 mb-3">New User Registration</h4>
-    <form style="background-color: rgba(0, 0, 0, 0.113);" class="text-dark p-3 rounded" action="{% url 'register_user' %}" method="POST" enctype="multipart/form-data">
+    <h4 class="text-uppercase text-center mt-3 mb-3 ts">New User Registration</h4><br>
+    <form style="background-color: rgba(0, 0, 0, 0.113);" class="text-dark p-3 rounded bs" action="{% url 'register_user' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|crispy }}
         <div class="text-center">

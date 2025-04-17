@@ -8,14 +8,20 @@
 
             <table class="table table-dark table-striped-columns">
                 <thead>
+                    <th>#</th>
                     <th>NAME</th>
                     <th>DOB</th>
                     <th>PHONE</th>
                     <th>LOGIN</th>
+                    <th>LOCATION</th>
+                    <th>IMAGE</th>
                 </thead>
                 <tbody>
                     {% for i in reg %}
                     <tr>
+                        <td>
+                            <p>{{ forloop.counter }}</p>
+                        </td>
                         <td>
                             <p>{{ i.user.username|capfirst }}</p>
                         </td>
@@ -27,6 +33,12 @@
                         </td>
                         <td>
                             <p>{{ i.created_at|date:'d/m/Y' }}</p>
+                        </td>
+                        <td>
+                            <textarea class="form-control bg-dark text-light" name="" id="" readonly>{{ i.location }}</textarea>
+                        </td>
+                        <td class="text-center">
+                            <img width="100px" src="{{ i.person_image.url }}" alt="">
                         </td>
                     </tr>
                     {% endfor %}

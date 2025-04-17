@@ -13,7 +13,8 @@ urlpatterns = [
     path('register_user', views.register_user,name="register_user"),
     path('login',auth_views.LoginView.as_view(template_name='qr_login.html'),name='login'),
     path('logout',auth_views.LogoutView.as_view(template_name='qr_logout.html'),name='logout'),
-    path('check_qr_valid', views.check_qr_valid,name="check_qr_valid"),
+    path('confirm_attendance', views.confirm_attendance,name="confirm_attendance"),
     path('log_register', views.log_register,name="log_register"),
     path('login_success', views.login_success,name="login_success"),
+    path('check_attendance_marked_or_not', views.check_attendance_marked_or_not,name="check_attendance_marked_or_not"),
 ]
