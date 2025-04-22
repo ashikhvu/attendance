@@ -3,10 +3,24 @@
 {% block body_block %}
 <div class="container">
     <h4 class="text-uppercase text-center mt-3 mb-3">ATTENDANCE ENTRIES</h4>
+    <form id="my_form" action="{% url 'log_register' %}" method="POST">
+        {% csrf_token %}
+        <div class="input-group my-3">
+            <span class="input-group-text bi bi-calendar-date bg-dark text-light"></span>
+            <select id="date_here" class="form-control bg-dark text-light" name="date_here" id="" onchange="document.getElementById('my_form').submit()">
+                <option {% if date_here == 'all' %}selected{% endif %} value="all">All</option>
+                <option {% if date_here == 'today' %}selected{% endif %} value="today">Today</option>
+                <option {% if date_here == 'yesterday' %}selected{% endif %} value="yesterday">Yesterday</option>
+                <option {% if date_here == 'last week' %}selected{% endif %} value="last week">Last Week</option>
+                <option {% if date_here == 'last month' %}selected{% endif %} value="last month">Last Month</option>
+                <option {% if date_here == 'last year' %}selected{% endif %} value="last year">Last Year</option>
+            </select>
+        </div>
+    </form>
     <div class="bg-dark p-3 rounded pb-1">
         <div style="overflow-x: auto;">
-
-            <table class="table table-dark table-striped-columns">
+            {% if reg %}
+            <table id="table_here" class="table table-dark table-striped-columns">
                 <thead>
                     <th>#</th>
                     <th>NAME</th>
@@ -31,7 +45,7 @@
                         <td>
                             <p>{{ i.user.phone }}</p>
                         </td>
-                        <td>
+                        <td class="reg_date">
                             <p>{{ i.created_at|date:'d/m/Y' }}</p>
                         </td>
                         <td>
@@ -42,8 +56,13 @@
                         </td>
                     </tr>
                     {% endfor %}
-                </tbody>
-            </table>
+                </table>
+                {% else %}
+           
+                <div class="bg-dark p-3">
+                    <h4 class="text-light text-center">Currently no data is available</h4>
+                </div>
+                {% endif %}
         </div>
     </div>
     
@@ -54,5 +73,50 @@
     $(document).ready(function(){
         $('#entries').addClass('active fw-bold');
     })
+
+
+    function filterdate(){
+        location.href='{% url "log_register" %}'
+    }
+
+    // $('#date_here').on('change',function(){
+    //     $.ajax({
+    //         url: "{% url 'log_register' %}",
+    //         type:"POST",
+    //         data: {
+    //             'date_here': $(this).val().toLowerCase(),
+    //             csrfmiddlewaretoken:'{{ csrf_token }}'
+    //         },
+    //         success:function(res){
+    //             alert(res)
+    //         },
+    //         error:function(error){
+    //             alert(error)
+    //         }
+    //     })
+    // })
+
+    // $('#date_here').on('change',function(){
+    //     const selected_date = $(this).val().toLowerCase();
+    //     const my_date = new Date();
+    //     if(selected_date=='today'){
+    //         const date = String(my_date.getDate()).padStart(2,'0');
+    //     }
+    //     else if(selected_date=='yesterday'){
+    //         const date = String(my_date.getDate()-1).padStart(2,'0');
+    //     }
+    //     const month = String(my_date.getMonth()+1).padStart(2,'0');
+    //     const fullyear = String(my_date.getFullYear());
+    //     var full_date = `${date}/${month}/${fullyear}`
+    //     $('#table_here tbody tr .reg_date').each(function(){
+    //         console.log($(this).text().toLowerCase())
+    //         if($(this).text().toLowerCase().indexOf(full_date)==-1){
+    //             $(this).parent().hide()
+    //         }
+    //         else{
+    //             $(this).parent().show()
+    //         }
+    //     })
+    // })
 </script>
 {% endblock %}

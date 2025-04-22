@@ -11,12 +11,14 @@ from PIL import Image
 from pyzbar.pyzbar import decode
 from celery import shared_task
 import datetime
+from datetime import timedelta
 from django.http import HttpResponse
 from .tasks import generate_qr_code_automatic
 from django.http import JsonResponse
 from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 def autogenerate_qr(request):
     img = AutoGenQr.objects.all().last()
@@ -220,15 +222,38 @@ def confirm_attendance(request):
     
 @login_required
 def log_register(request):
-    reg = LoginRegister.objects.filter()
-    for i in reg:
-        print(f'---------------{i.created_at}-----------')
-
+    if request.POST.get('date_here'):
+        date_here = request.POST.get('date_here')
+    else:
+        date_here = "today"
     now = timezone.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
-    print(f'--------------{now}---------------')
-    return render(request,'log_register.html',{'reg':reg})
+    date_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    date_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+    reg = LoginRegister.objects.filter()
+
+    if request.method=="POST":
+        if date_here=='all' or date_here=='' or date_here==None:
+            reg = LoginRegister.objects.filter()
+        elif date_here=='today':
+            reg = LoginRegister.objects.filter(created_at__range=(date_start,date_end))
+        elif date_here=='yesterday':
+            date_start = date_start - timedelta(days=1)
+            date_end = date_end - timedelta(days=1)
+            print(f'------------{date_start}------------')
+            reg = LoginRegister.objects.filter(created_at__range=(date_start,date_end))
+        elif date_here=='last week':
+            date_start = date_start - timedelta(days=7)
+            reg = LoginRegister.objects.filter(created_at__range=(date_start,date_end))
+        elif date_here=='last month':
+            date_start = date_start - relativedelta(months=1)
+            reg = LoginRegister.objects.filter(created_at__range=(date_start,date_end))
+        elif date_here=='last year':
+            date_start = date_start - relativedelta(years=1)
+            reg = LoginRegister.objects.filter(created_at__range=(date_start,date_end))
+    else:
+        pass
+    print(date_here)
+    return render(request,'log_register.html',{'reg':reg,'date_here':date_here})
 
 @login_required
 def login_success(request):
